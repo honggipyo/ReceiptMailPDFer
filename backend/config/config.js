@@ -1,4 +1,4 @@
-require('dotenv').config(); // .env 파일 읽기
+require('dotenv').config();
 
 module.exports = {
   development: {
