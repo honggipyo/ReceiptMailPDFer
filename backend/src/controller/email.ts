@@ -83,6 +83,24 @@ export const sendReceiptMailByCsv = async (
     },
     { concurrency: 5 },
   );
+
+  // 失敗したメールアドレスのログ出力
+  const failedEmails = receiptResults.filter(
+    (result: ReceiptResult) => !result.success,
+  );
+  // 失敗したメールアドレスが存在する場合のエラーハンドリング
+  if (failedEmails.length > 0) {
+    console.error(
+      `Failed to generate receipts for emails: ${failedEmails.map((f: ReceiptResult) => f.email).join(", ")}`,
+    );
+    console.error(
+      "Detailed errors:",
+      failedEmails.map((f) => ({
+        email: f.email,
+        error: f.error?.message,
+      })),
+    );
+  }
   return {
     success: true,
     data: undefined,
