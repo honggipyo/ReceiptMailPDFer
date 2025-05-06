@@ -166,6 +166,51 @@ export default function Home() {
     setFileName(null);
     setCsvFile(null);
   };
+
+  /**
+   * ファイルがCSV形式かどうかを確認する関数
+   */
+  const isCsvFile = (file: File): boolean => {
+    return file.type === 'text/csv' || file.name.endsWith('.csv');
+  };
+
+  /**
+   * ファイル選択時の処理
+   * 選択されたファイルの名前を表示し、状態を更新します
+   */
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const file = e.target.files[0];
+      setFileName(file.name);
+      setCsvFile(file);
+    }
+  };
+
+  /**
+   * ドラッグ＆ドロップでファイルを受け取る処理
+   * CSVファイルのみを受け付け、それ以外の形式はエラーメッセージを表示します
+   */
+  const handleFileDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (isCsvFile(file)) {
+        setFileName(file.name);
+        setCsvFile(file);
+      } else {
+        alert('csv形式のファイルをアップロードしてください。');
+      }
+    }
+  };
+
+  /**
+   * ドラッグオーバー時のイベント処理
+   * デフォルトの動作を防止します
+   */
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
   return (
     <>
       <Head>
