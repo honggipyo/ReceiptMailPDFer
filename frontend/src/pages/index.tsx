@@ -237,6 +237,46 @@ export default function Home() {
     }
     return true;
   };
+
+  /**
+   * CSVファイル送信処理
+   * フォーム送信時に実行され、APIを呼び出してCSVファイルを送信します
+   * 成功時は成功メッセージを表示し、ページをリロードします
+   * 失敗時はエラーメッセージを表示します
+   */
+  const handleCsvSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!validateSendMail()) return;
+
+    console.log('Upload file:', csvFile);
+
+    const formData = new FormData();
+    formData.append('file', csvFile || '');
+
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/sendEmailByCsv`, {
+        method: 'POST',
+        headers: {
+          'x-api-key': process.env.NEXT_PUBLIC_API_KEY,
+          authorization: process.env.NEXT_PUBLIC_API_KEY_V2,
+        } as HeadersInit,
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      alert('領収書発行メール送信に成功しました！');
+      router.reload();
+    } catch (error) {
+      console.error('Error during upload:', error);
+      alert(error instanceof Error ? error.message : '領収書発行メール送信に失敗しました。');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Container>
       <ContentArea>
