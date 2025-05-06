@@ -46,6 +46,43 @@ export const sendReceiptMailByCsv = async (
   // メールアドレスの配列を取得
   const emailArray: string[] = convertResult.data.map((record) => record.email);
 
+  // 各メールアドレスに対して領収書を生成（並列処理、最大5件同時実行）
+  const receiptResults: ReceiptResult[] = await pMap(
+    emailArray,
+    async (email: EmailEntity): Promise<ReceiptResult> => {
+      try {
+        // 領収書の詳細情報を取得
+        // 以下の処理を行います：
+        // 1. ユーザー情報の取得
+        // 2. 購入情報の取得
+        // 3. 商品情報の取得
+        // 4. HTML形式の領収書生成
+        const receiptResult = await receiptUsecase.getReceiptDetails(
+          ctx,
+          email,
+        );
+        if (!receiptResult.success) {
+          return {
+            email,
+            success: false,
+            error: receiptResult.error,
+          };
+        }
+        return {
+          email,
+          success: true,
+          html: receiptResult.data,
+        };
+      } catch (err) {
+        return {
+          email,
+          success: false,
+          error: err instanceof Error ? err : new Error(String(err)),
+        };
+      }
+    },
+    { concurrency: 5 },
+  );
   return {
     success: true,
     data: undefined,
