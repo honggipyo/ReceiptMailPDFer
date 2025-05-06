@@ -9,6 +9,7 @@ export const config = {
   },
 };
 
+// メール送信API
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const response = await fetch(
