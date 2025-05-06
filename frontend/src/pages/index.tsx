@@ -1,8 +1,11 @@
-import Head from "next/head";
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
-import styles from "@/styles/Home.module.css";
 import styled from 'styled-components';
+import { useRouter } from 'next/router';
+import { DragEvent, useState } from 'react';
+import { CheckBox } from '@/components/CheckBox';
+import StyledTableComponent from '@/components/StyledTableComponent';
+import { MAIL_TEMPLATES, MAIL_TEMPLATES_OPTIONS } from '@/constants';
+import { Loading } from '@/components/Loading';
+import { getEmailExampleData } from '@/util';
 
 /**
  * スタイル付きコンポーネント定義
@@ -212,6 +215,12 @@ export default function Home() {
     e.preventDefault();
   };
 
+  /**
+   * 領収書メール送信の同意チェックボックスの状態変更処理
+   */
+  const handleCheckIsAgreeReceiptMail = (isChecked: boolean) => {
+    setIsAgreeReceiptMail(isChecked);
+  };
   return (
     <Container>
       <ContentArea>
