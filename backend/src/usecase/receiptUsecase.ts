@@ -48,6 +48,16 @@ export class ReceiptUsecase implements ReceiptUsecaseInterface {
     ctx: Context,
     email: EmailEntity,
   ): PromiseResult<Error, string> {
+    // ユーザー情報を取得
+    // handleGetDataResultは、データ取得の成否をチェックし、成否に応じてエラーハンドリングを行う関数
+    const userResult = await handleGetDataResult(
+      this.userRepository.getUserByEmail(ctx, email),
+      "User not Found",
+    );
+    if (!userResult.success) {
+      console.log("userResult", userResult);
+      return userResult;
+    }
   }
 
   /**
