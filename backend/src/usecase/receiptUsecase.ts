@@ -68,6 +68,19 @@ export class ReceiptUsecase implements ReceiptUsecaseInterface {
       console.log("purchaseResult", purchaseResult);
       return purchaseResult;
     }
+
+    // 各購入情報に対して商品情報を取得
+    const purchasesWithProducts: PurchaseWithProduct[] = [];
+    for (const purchase of purchaseResult.data) {
+      // 商品情報を取得
+      const productResult = await handleGetDataResult(
+        this.productRepository.getProductById(ctx, purchase.productId),
+        "Product not Found",
+      );
+      if (!productResult.success) {
+        console.log("productResult", productResult);
+        return productResult;
+      }
   }
 
   /**
