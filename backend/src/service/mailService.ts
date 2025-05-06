@@ -37,6 +37,31 @@ export class MailService implements MailServiceInterface {
   ): Promise<void> {
     const { email, subject, text, pdf, dynamicData } = dynamicTemplate;
 
+    // メールの基本情報を設定
+    const msg: MailDataRequired = {
+      to: email,
+      from: {
+        email: MAIL_SENDER_ADDRESS,
+        name: MAIL_SENDER_NAME,
+      },
+      subject: subject,
+      text: text,
+      // 動的テンプレートデータが存在する場合は動的テンプレートデータを設定
+      ...(dynamicData ? { dynamicTemplateData: dynamicData } : {}),
+    };
+
+    // PDF添付ファイルを設定
+    if (pdf) {
+      msg.attachments = [
+        {
+          content: pdf.buffer.toString("base64"),
+          filename: pdf.fileName,
+          type: "application/pdf",
+          disposition: "attachment",
+          contentId: "pdfAttachment",
+        },
+      ];
+    }
   }
 
   /**
