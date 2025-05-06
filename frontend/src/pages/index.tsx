@@ -2,17 +2,141 @@ import Head from "next/head";
 import Image from "next/image";
 import { Geist, Geist_Mono } from "next/font/google";
 import styles from "@/styles/Home.module.css";
+import styled from 'styled-components';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+/**
+ * スタイル付きコンポーネント定義
+ * アプリケーションのUIレイアウトとスタイルを設定
+ */
+const Container = styled.div`
+  display: flex;
+  height: 100vh;
+  background-color: white;
+`;
+const ContentArea = styled.div`
+  width: 80%;
+  padding: 30px 20px 0 60px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+`;
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const ItemArea = styled.div`
+  display: flex;
+  width: 500px;
+  height: 40px;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+  margin-bottom: 30px;
+`;
 
+const CsvArea = styled.div`
+  display: flex;
+  width: 500px;
+  justify-content: space-between;
+  align-items: left;
+  margin-top: 50px;
+  height: 200px;
+  flex-direction: column;
+`;
+
+const LabelArea = styled.div`
+  font-family: Noto Sans JP;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 23px;
+  letter-spacing: 0em;
+  text-align: left;
+  color: #000000;
+`;
+
+const SelectArea = styled.select.attrs({ required: true })`
+  box-shadow: 0px 0px 10px 0px #0000001a;
+  border: none;
+  width: 330px;
+  height: 46px;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 16px;
+`;
+
+const ScrollableTableContainer = styled.div`
+  overflow: auto;
+  flex-grow: 1;
+  margin-bottom: 40px;
+`;
+
+const Form = styled.form``;
+
+const FileInputContainer = styled.div`
+  border: 2px dashed #b2b2b2;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  width: 500px;
+  height: 200px;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #e9ecef;
+  &:hover {
+    opacity: 0.5;
+  }
+`;
+
+const FileInputLabel = styled.label`
+  color: #b2b2b2;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+`;
+
+const FileInput = styled.input`
+  display: none;
+`;
+
+const SubmitButton = styled.button`
+  width: 500px;
+  height: 60px;
+  padding: 10px;
+  margin: 20px 0;
+  background: #ff9900;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: Noto Sans JP;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  letter-spacing: 0em;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+const CheckBoxDescription = styled.div`
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 23.17px;
+  text-align: left;
+  color: #070002e5;
+`;
+const CheckBoxGroup = styled.div`
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 30px;
+`;
+
+const CsvFormatText = styled.p`
+  font-size: 16px;
+  margin: 10px 0;
+`;
 export default function Home() {
   return (
     <>
