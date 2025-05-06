@@ -62,6 +62,21 @@ export class MailService implements MailServiceInterface {
         },
       ];
     }
+
+    // メール送信を実行（最大3回までリトライ）
+    await executeAndRetry({
+      targetFn: async () => await sgMail.send(msg),
+      maxCalls: 3, // 最大3回まで実行
+      delayMs: 3000, // 3秒
+    })
+      .then(() => {
+        console.info(`SendGrid Successfully Sent Email to [${email}], `);
+      })
+      .catch((error) => {
+        console.error(
+          `SendGrid Failed to Send Email to [${email}], ` + `Error: ${error}`,
+        );
+      });
   }
 
   /**
