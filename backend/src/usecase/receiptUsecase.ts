@@ -81,6 +81,32 @@ export class ReceiptUsecase implements ReceiptUsecaseInterface {
         console.log("productResult", productResult);
         return productResult;
       }
+
+      // 購入情報と商品情報を結合
+      purchasesWithProducts.push({
+        purchase,
+        product: productResult.data,
+      });
+    }
+
+    // 購入情報が存在しない場合のエラーハンドリング
+    if (!purchasesWithProducts.length) {
+      return {
+        success: false,
+        error: notFound("purchasesWithProducts not Exists"),
+      };
+    }
+
+    // 領収書HTMLを生成
+    const receiptHtml = await this.getReceiptHtml(
+      userResult.data,
+      purchasesWithProducts,
+    );
+
+    return {
+      success: true,
+      data: receiptHtml,
+    };
   }
 
   /**
