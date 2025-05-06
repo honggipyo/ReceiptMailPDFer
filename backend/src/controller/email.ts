@@ -127,3 +127,38 @@ const convertEmailCsvToJson = async (
       ),
     };
   }
+
+  return { success: true, data: validationResult.data };
+};
+
+// HTMLをPDFに変換する関数
+// 以下の処理を行います：
+// 1. Puppeteerのブラウザを起動
+// 2. 新しいページを作成
+// 3. HTMLをページに設定
+// 4. PDFを生成
+const convertHtmlToPDFBuffer = async (html: string): Promise<Buffer> => {
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
+    executablePath: "/usr/bin/chromium",
+    protocolTimeout: 3_000,
+  });
+
+  const page = await browser.newPage();
+  await page.setContent(html, {
+    waitUntil: "domcontentloaded",
+    timeout: 3_000,
+  });
+
+  await page.evaluateHandle("document.fonts.ready");
+
+  const pdfBuffer = await page.pdf({
+    format: "A4",
+    printBackground: true,
+    waitForFonts: true,
+  });
+  await browser.close();
+
+  return Buffer.from(pdfBuffer);
+};
