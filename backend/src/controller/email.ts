@@ -52,3 +52,41 @@ export const sendReceiptMailByCsv = async (
   };
 };
 
+/**
+ * CSVファイルをJSONに変換する関数
+ * 以下の処理を行います：
+ * 1. CSVファイルのパース
+ * 2. データのバリデーション
+ *
+ * CSVファイルの形式が不正な場合や、必要なデータが含まれていない場合は
+ * エラーを返します。
+ */
+const convertEmailCsvToJson = async (
+  file: Express.Multer.File,
+): PromiseResult<Error, MailRecord[]> => {
+  // CSVファイルをパース
+  const records: MailRecord[] = parse(file.buffer, {
+    columns: true,
+    skip_empty_lines: true,
+    bom: true,
+  });
+
+  // レコードが存在しない場合のエラーハンドリング
+  if (!records.length) {
+    return {
+      success: false,
+      error: new Error("CSV to JSON Parsing failed: records not found."),
+    };
+  }
+
+  // データのバリデーション
+  const validationResult = EmailValidationSchema.safeParse(records);
+  if (!validationResult.success) {
+    return {
+      success: false,
+      error: new Error(
+        validationResult.error.issues.map((issue) => issue.message).join(", ") +
+          " in CSV file format error",
+      ),
+    };
+  }
