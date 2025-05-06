@@ -17,6 +17,11 @@ app.post(
     next: express.NextFunction,
   ) => {
     try {
+      const file = req.file;
+      if (!file) {
+        console.log("No file found in request");
+        return next(badRequest("Parameter invalid", { statusCode: 400 }));
+      }
     } catch (err) {
       console.error("Error in handler:", err);
       return next(new Boom("Server Error", { statusCode: 500 }));
