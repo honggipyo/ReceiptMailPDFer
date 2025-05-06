@@ -16,7 +16,7 @@ services:
   backend:
     build: ./backend
     ports:
-      - "4000:4000"
+      - "8080:8080"
     volumes:
       - ./backend:/app
     depends_on:
