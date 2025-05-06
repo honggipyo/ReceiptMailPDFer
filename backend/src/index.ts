@@ -2,11 +2,27 @@ import express from 'express';
 import { sequelize } from './models';
 
 const app = express();
-const PORT = 4000;
+const PORT = env.PORT;
+const upload = multer({ storage: multer.memoryStorage() });
 
-app.get('/', (req, res) => {
-  res.send('Hello from backend');
-});
+app.use(express.json());
+app.use(cors());
+
+app.post(
+  "/send-receipt-mail-by-csv",
+  upload.single("file"),
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    try {
+    } catch (err) {
+      console.error("Error in handler:", err);
+      return next(new Boom("Server Error", { statusCode: 500 }));
+    }
+  },
+);
 
 const connectWithRetry = async () => {
   try {
