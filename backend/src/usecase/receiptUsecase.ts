@@ -33,3 +33,102 @@ export class ReceiptUsecase implements ReceiptUsecaseInterface {
     this.productRepository = new ProductRepository();
   }
   }
+
+  /**
+   * 領収書のHTMLを生成する関数
+   * 以下の処理を行います：
+   * 1. 合計金額の計算
+   * 2. 購入商品一覧のHTML生成
+   * 3. 領収書全体のHTML生成
+   *
+   * 各購入商品の詳細情報と合計金額を含む、整形されたHTML文書を作成します。
+   * 金額は日本円の形式（3桁区切り）で表示されます。
+   */
+  private async getReceiptHtml(
+    user: User,
+    purchasesWithProducts: PurchaseWithProduct[],
+  ): Promise<string> {
+    // 合計金額を計算
+    const totalAmount = purchasesWithProducts.reduce(
+      (sum, { purchase, product }) => sum + product.price * purchase.quantity,
+      0,
+    );
+
+    // 購入商品一覧のHTMLを生成
+    const purchaseItems = purchasesWithProducts
+      .map(
+        ({ purchase, product }) => `
+      <div class="purchase-item">
+        <p>商品名: ${product.name}</p>
+        <p>数量: ${purchase.quantity}</p>
+        <p>単価: ${product.price.toLocaleString()}円</p>
+        <p>小計: ${(product.price * purchase.quantity).toLocaleString()}円</p>
+      </div>
+    `,
+      )
+      .join("");
+
+    // 領収書全体のHTMLを生成
+    const html = `
+    <html>
+    <head>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        .receipt {
+          border: 1px solid #ddd;
+          padding: 20px;
+          border-radius: 8px;
+        }
+        .header {
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        .info {
+          margin-bottom: 15px;
+        }
+        .purchase-item {
+          border-bottom: 1px solid #eee;
+          padding: 10px 0;
+        }
+        .total {
+          font-weight: bold;
+          margin-top: 20px;
+          border-top: 1px solid #ddd;
+          padding-top: 10px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="receipt">
+        <div class="header">
+          <h1>購入領収書</h1>
+          <p>${new Date().toLocaleDateString()}</p>
+        </div>
+        
+        <div class="info">
+          <h3>購入者情報</h3>
+          <p>名前: ${user.name}</p>
+          <p>メールアドレス: ${user.email}</p>
+        </div>
+
+        <div class="info">
+          <h3>購入履歴</h3>
+          ${purchaseItems}
+        </div>
+
+        <div class="total">
+          <p>総 支払額: ${totalAmount.toLocaleString()}円</p>
+        </div>
+      </div>
+    </body>
+    </html>
+    `;
+
+    return html;
+  }
+}
