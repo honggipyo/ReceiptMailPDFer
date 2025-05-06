@@ -137,7 +137,23 @@ const CsvFormatText = styled.p`
   font-size: 16px;
   margin: 10px 0;
 `;
+
+/**
+ * メインページコンポーネント
+ * 以下の機能を提供します：
+ * 1. メールテンプレートの選択
+ * 2. CSVファイルのアップロード（ドラッグ＆ドロップ対応）
+ * 3. 領収書メール送信のための確認チェック
+ * 4. サーバーへのCSVファイル送信
+ */
 export default function Home() {
+  // ルーターとステート管理
+  const router = useRouter();
+  const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [isLoading, setLoading] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [isAgreeReceiptMail, setIsAgreeReceiptMail] = useState(false);
   return (
     <>
       <Head>
