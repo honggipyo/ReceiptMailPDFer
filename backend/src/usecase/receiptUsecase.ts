@@ -32,6 +32,22 @@ export class ReceiptUsecase implements ReceiptUsecaseInterface {
     this.purchaseRepository = new PurchaseRepository();
     this.productRepository = new ProductRepository();
   }
+
+  /**
+   * 領収書の詳細情報を取得する関数
+   * 以下の処理を行います：
+   * 1. ユーザー情報の取得
+   * 2. 購入情報の取得
+   * 3. 商品情報の取得
+   * 4. 領収書HTMLの生成
+   *
+   * クリーンアーキテクチャの原則に従って、データの流れは一方向に保たれます。
+   * 各ステップで失敗した場合は、適切なエラーメッセージと共に処理を中断します。
+   */
+  public async getReceiptDetails(
+    ctx: Context,
+    email: EmailEntity,
+  ): PromiseResult<Error, string> {
   }
 
   /**
