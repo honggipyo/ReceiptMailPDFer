@@ -14,6 +14,16 @@ const upload = multer({ storage: multer.memoryStorage() });
 app.use(express.json());
 app.use(cors());
 
+/**
+ * CSVファイルを使用して領収書メールを送信するエンドポイント
+ * このエンドポイントは以下の処理を行います：
+ * 1. CSVファイルのアップロードを受け付け
+ * 2. トランザクションを開始してデータベース操作の整合性を保証
+ * 3. エラーハンドリングとレスポンスの返却
+ *
+ * CSVファイルには、ユーザーのメールアドレス情報が含まれている必要があります。
+ * このエンドポイントは、CSVファイルを解析し、各ユーザーに対して領収書を生成して送信します。
+ */
 app.post(
   "/send-receipt-mail-by-csv",
   upload.single("file"),
@@ -28,6 +38,18 @@ app.post(
         console.log("No file found in request");
         return next(badRequest("Parameter invalid", { statusCode: 400 }));
       }
+
+      // トランザクションを開始し、CSVファイルの処理を実行
+      const result = await sendReceiptMailByCsv(
+        { tx: await sequelize.transaction() } as Context,
+        file,
+      );
+      if (!result.success) {
+        return next(new Boom(result.error));
+      }
+
+      // 処理が成功した場合は204（No Content）を返却
+      res.status(204).end();
     } catch (err) {
       console.error("Error in handler:", err);
       return next(new Boom("Server Error", { statusCode: 500 }));
