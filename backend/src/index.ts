@@ -11,16 +11,17 @@ app.get('/', (req, res) => {
 const connectWithRetry = async () => {
   try {
     await sequelize.authenticate();
-    console.log('Database connected');
-  } catch (err) {
-    console.error('DB connection failed. Retrying in 3s...');
-    setTimeout(connectWithRetry, 3000);
-    return;
-  }
+    console.log("Database connected");
 
-  app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-  });
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running at http://0.0.0.0:${PORT}`);
+    });
+  } catch (err) {
+    console.error("DB connection failed. Retrying in 3s...");
+    setTimeout(connectWithRetry, 3000);
+  }
 };
 
 connectWithRetry();
+
+export default app;
