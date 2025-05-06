@@ -101,6 +101,30 @@ export const sendReceiptMailByCsv = async (
       })),
     );
   }
+
+  // 成功した領収書をPDFに変換してメール送信（並列処理、最大5件同時実行）
+  await pMap(
+    receiptResults.filter((result: ReceiptResult) => result.success),
+    async (result: ReceiptResult) => {
+      if (result.html) {
+        let receiptPdfBuffer: Buffer = Buffer.from("");
+        try {
+          // HTMLをPDFに変換
+          receiptPdfBuffer = await convertHtmlToPDFBuffer(result.html);
+        } catch (err) {
+          console.error("pdf gen failed", err);
+          return;
+        }
+
+        // メール送信
+        await emailService.prepareReceiptMail(ctx, result.email, {
+          receiptPdfBuffer: receiptPdfBuffer,
+        } as ReceiptMail);
+      }
+    },
+    { concurrency: 5 },
+  );
+
   return {
     success: true,
     data: undefined,
