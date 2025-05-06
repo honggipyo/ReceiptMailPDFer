@@ -55,7 +55,7 @@ Purchase.init(
   {
     sequelize,
     modelName: "Purchase",
-    tableName: "purchases",
+    tableName: "Purchases",
     timestamps: true,
   },
 );
