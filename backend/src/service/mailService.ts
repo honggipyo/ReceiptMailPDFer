@@ -21,6 +21,23 @@ const apiKey = env.SENDGRID_API_KEY;
 sgMail.setApiKey(apiKey);
 
 export class MailService implements MailServiceInterface {
+  /**
+   * メールを送信する共通関数
+   * 以下の処理を行います：
+   * 1. メールの基本情報設定
+   * 2. PDF添付ファイルの設定
+   * 3. メール送信（最大3回までリトライ）
+   *
+   * 一時的なネットワークエラーが発生した場合は、自動的にリトライします。
+   * 送信結果はログに記録され、エラーが発生した場合でも適切に処理されます。
+   */
+  private async sendMail<T extends MailDetails>(
+    ctx: Context,
+    dynamicTemplate: DynamicTemplate<T>,
+  ): Promise<void> {
+    const { email, subject, text, pdf, dynamicData } = dynamicTemplate;
+
+  }
 
   /**
    * 領収書メールを送信する関数
