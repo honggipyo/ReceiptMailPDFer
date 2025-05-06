@@ -21,4 +21,32 @@ const apiKey = env.SENDGRID_API_KEY;
 sgMail.setApiKey(apiKey);
 
 export class MailService implements MailServiceInterface {
+
+  /**
+   * 領収書メールを送信する関数
+   * 以下の処理を行います：
+   * 1. 領収書PDFの設定
+   * 2. メール送信
+   *
+   * 購入者に対して、添付ファイルとして領収書PDFを含む確認メールを送信します。
+   * メールの件名と本文は定数ファイルで定義されています。
+   */
+  public async prepareReceiptMail(
+    ctx: Context,
+    email: string,
+    receiptMail: ReceiptMail,
+  ): Promise<void> {
+    const { receiptPdfBuffer }: ReceiptMail = receiptMail;
+
+    // メール送信
+    await this.sendMail(ctx, {
+      email: email,
+      subject: RECEIPT_SUBJECT,
+      text: RECEIPT_TEXT,
+      pdf: {
+        fileName: RECEIPT_FILE_NAME,
+        buffer: receiptPdfBuffer,
+      } as Pdf,
+    });
+  }
 }
