@@ -221,6 +221,22 @@ export default function Home() {
   const handleCheckIsAgreeReceiptMail = (isChecked: boolean) => {
     setIsAgreeReceiptMail(isChecked);
   };
+
+  /**
+   * メール送信前のバリデーション処理
+   * ファイルの選択状態と同意チェックを確認します
+   */
+  const validateSendMail = () => {
+    if (!csvFile) {
+      alert('ファイルが選択されていません。');
+      return false;
+    }
+    if (!isAgreeReceiptMail) {
+      alert('領収書発行メール送信に同意してください。');
+      return false;
+    }
+    return true;
+  };
   return (
     <Container>
       <ContentArea>
