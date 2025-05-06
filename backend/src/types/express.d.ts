@@ -1,0 +1,8 @@
+// types/express.d.ts
+import { Context } from "./context";
+
+declare module "express-serve-static-core" {
+  interface Request {
+    context: Context;
+  }
+}
