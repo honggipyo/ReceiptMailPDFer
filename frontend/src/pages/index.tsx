@@ -154,6 +154,18 @@ export default function Home() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [isAgreeReceiptMail, setIsAgreeReceiptMail] = useState(false);
+
+  /**
+   * メールテンプレート選択時の処理
+   * テンプレートが変更されると、関連する状態をリセットします
+   */
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value;
+    setSelectedTemplate(value);
+    setIsAgreeReceiptMail(false);
+    setFileName(null);
+    setCsvFile(null);
+  };
   return (
     <>
       <Head>
