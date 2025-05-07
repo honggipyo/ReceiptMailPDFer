@@ -8,14 +8,25 @@ export class ProductDatasource implements dsProductInterface {
     ctx: Context,
     productId: number,
   ): PromiseResult<Error, Product | null> {
-    const product = await Product.findByPk(productId, {
-      raw: true,
-      transaction: ctx.tx || undefined,
-    });
+    try {
+      const product = await Product.findByPk(productId, {
+        raw: true,
+        transaction: ctx.tx || undefined,
+      });
 
-    return {
-      success: true,
-      data: product,
-    };
+      return {
+        success: true,
+        data: product,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error
+            : new Error("Error in ProductDatasource findById"),
+      };
+    }
+  }
   }
 }

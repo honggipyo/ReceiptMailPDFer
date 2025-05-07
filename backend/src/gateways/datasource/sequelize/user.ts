@@ -9,17 +9,27 @@ export class UserDatasource implements dsUserInterface {
     ctx: Context,
     email: EmailEntity,
   ): PromiseResult<Error, User | null> {
-    const user = await User.findOne({
-      where: {
-        email,
-      },
-      raw: true,
-      transaction: ctx.tx || undefined,
-    });
+    try {
+      const user = await User.findOne({
+        where: {
+          email,
+        },
+        raw: true,
+        transaction: ctx.tx || undefined,
+      });
 
-    return {
-      success: true,
-      data: user,
-    };
+      return {
+        success: true,
+        data: user,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error
+            : new Error("Error in UserDatasource findByEmail"),
+      };
+    }
   }
 }

@@ -8,17 +8,27 @@ export class PurchaseDatasource implements dsPurchaseInterface {
     ctx: Context,
     userId: number,
   ): PromiseResult<Error, Purchase[]> {
-    const purchase = await Purchase.findAll({
-      where: {
-        userId,
-      },
-      raw: true,
-      transaction: ctx.tx || undefined,
-    });
+    try {
+      const purchase = await Purchase.findAll({
+        where: {
+          userId,
+        },
+        raw: true,
+        transaction: ctx.tx || undefined,
+      });
 
-    return {
-      success: true,
-      data: purchase,
-    };
+      return {
+        success: true,
+        data: purchase,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error
+            : new Error("Error in PurchaseDatasource findByUserId"),
+      };
+    }
   }
 }
