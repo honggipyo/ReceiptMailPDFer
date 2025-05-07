@@ -6,10 +6,14 @@ import { sendReceiptMailByCsv } from "./controller/email";
 import { Context } from "./types/context";
 import { env } from "./env";
 import cors from "cors";
+import { ProductUsecase } from "./usecase/productUsecase";
+import { ProductUsecaseInterface } from "./usecase/inputport/productUsecaseInterface";
 
 const app = express();
 const PORT = env.PORT;
 const upload = multer({ storage: multer.memoryStorage() });
+
+const productUsecase: ProductUsecaseInterface = new ProductUsecase();
 
 app.use(express.json());
 app.use(cors());
@@ -52,6 +56,36 @@ app.post(
       res.status(204).end();
     } catch (err) {
       console.error("Error in handler:", err);
+      return next(new Boom("Server Error", { statusCode: 500 }));
+    }
+  },
+);
+
+/**
+ * 全商品情報を取得するエンドポイント
+ * このエンドポイントはデータベースから全ての商品情報を取得し、JSON形式で返します
+ * クリーンアーキテクチャパターンに基づき、ユースケースを使用して実装
+ */
+app.get(
+  "/products",
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    try {
+      // ユースケースを使用して商品リストを取得
+      const result = await productUsecase.getAllProducts({
+        tx: await sequelize.transaction(),
+      } as Context);
+      if (!result.success) {
+        return next(new Boom(result.error, { statusCode: 500 }));
+      }
+
+      // 商品リストをJSONで返す
+      res.status(200).json(result.data);
+    } catch (err) {
+      console.error("Error in getAllProducts:", err);
       return next(new Boom("Server Error", { statusCode: 500 }));
     }
   },
