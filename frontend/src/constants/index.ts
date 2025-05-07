@@ -14,6 +14,8 @@ export const EmailData = [
 ];
 
 export const MESSAGES = {
+  MAIL_TEMPLATE: 'メールテンプレート',
+  MAIL_TEMPLATE_SELECT: 'メールテンプレートを選択',
   FILE_NOT_SELECTED: 'ファイルが選択されていません。',
   AGREE_REQUIRED: '領収書発行メール送信に同意してください。',
   CSV_FORMAT_REQUIRED: 'csv形式のファイルをアップロードしてください。',
@@ -26,4 +28,7 @@ export const MESSAGES = {
   CHECK_CSV_FILE: '必ずCSVファイルをご確認の上、送信してください。',
   CONSENT_QUESTION: '領収書発行メール送信に同意しますか？',
   CSV_FORMAT_GUIDE: '以下のフォーマットのcsvをアップロードしてください',
+  PRODUCT_LIST_TITLE: '現在販売中の商品リスト',
+  PRODUCT_LIST_EMPTY: '商品データを読み込み中...',
+  PRODUCT_LIST_PRICE: '円',
 };
