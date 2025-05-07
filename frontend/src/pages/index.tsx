@@ -142,6 +142,12 @@ const CsvFormatText = styled.p`
   margin: 10px 0;
 `;
 
+
+// ページプロップスの型定義
+interface HomeProps {
+  products: Product[];
+}
+
 /**
  * メインページコンポーネント
  *
@@ -158,7 +164,7 @@ const CsvFormatText = styled.p`
  * 4. 送信ボタンをクリックしてバックエンドAPIにリクエスト送信
  * 5. 結果に応じたメッセージを表示
  */
-export default function Home() {
+export default function Home({ products }: HomeProps) {
   // ステート管理の定義
   const router = useRouter();
   const [selectedTemplate, setSelectedTemplate] = useState(''); // 選択されたメールテンプレート
@@ -429,3 +435,35 @@ export default function Home() {
     </Container>
   );
 }
+
+/**
+ * サーバーサイドでデータを取得する関数
+ * データベースから商品リストを取得し、ページプロップスとして提供します
+ */
+export const getServerSideProps: GetServerSideProps<HomeProps> = async () => {
+  try {
+    // バックエンドAPIから商品データを取得
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_ENDPOINT}/products`);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch products');
+    }
+
+    const products: Product[] = await response.json();
+
+    return {
+      props: {
+        products,
+      },
+    };
+  } catch (error) {
+    console.error('Error in getServerSideProps:', error);
+
+    // エラー発生時でもアプリが動作するように空の配列を返す
+    return {
+      props: {
+        products: [],
+      },
+    };
+  }
+};
