@@ -144,6 +144,97 @@ const CsvFormatText = styled.p`
   margin: 10px 0;
 `;
 
+// 商品リスト用のスタイル
+const ProductListContainer = styled.div`
+  margin: 20px 0;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+`;
+
+const ProductListTitle = styled.h3`
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  padding: 16px 20px;
+  color: #333333;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+`;
+
+const ProductList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: #ffffff;
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #cccccc;
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #aaaaaa;
+  }
+`;
+
+const ProductItem = styled.li`
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  transition: all 0.2s ease;
+  &:last-child {
+    border-bottom: none;
+  }
+  &:hover {
+    background-color: #f5f5f5;
+  }
+`;
+
+const ProductName = styled.div`
+  font-weight: 600;
+  font-size: 16px;
+  color: #444444;
+  margin-bottom: 6px;
+`;
+
+const ProductDetails = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+`;
+
+const ProductPrice = styled.div`
+  color: #5c6bc0;
+  font-weight: 600;
+  font-size: 16px;
+  background-color: #f0f4ff;
+  padding: 4px 8px;
+  border-radius: 4px;
+`;
+
+const ProductDescription = styled.div`
+  font-size: 14px;
+  color: #666666;
+  flex: 1;
+  margin-right: 10px;
+`;
+
+const ProductEmpty = styled.div`
+  padding: 30px 20px;
+  text-align: center;
+  color: #999999;
+  font-style: italic;
+`;
 
 // ページプロップスの型定義
 interface HomeProps {
