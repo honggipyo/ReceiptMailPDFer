@@ -461,6 +461,31 @@ export default function Home({ products }: HomeProps) {
     <Container>
       <ContentArea>
         <ScrollableTableContainer>
+          {/* 商品リスト表示エリア */}
+          {selectedTemplate && (
+            <ProductListContainer>
+              <ProductListTitle>{MESSAGES.PRODUCT_LIST_TITLE}</ProductListTitle>
+              <ProductList>
+                {products.length > 0 ? (
+                  products.map((product: Product) => (
+                    <ProductItem key={product.id}>
+                      <ProductName>{product.name}</ProductName>
+                      <ProductDetails>
+                        <ProductDescription>{product.description}</ProductDescription>
+                        <ProductPrice>
+                          {product.price.toLocaleString()}
+                          {MESSAGES.PRODUCT_LIST_PRICE}
+                        </ProductPrice>
+                      </ProductDetails>
+                    </ProductItem>
+                  ))
+                ) : (
+                  <ProductEmpty>{MESSAGES.PRODUCT_LIST_EMPTY}</ProductEmpty>
+                )}
+              </ProductList>
+            </ProductListContainer>
+          )}
+
           {/* メールテンプレート選択エリア */}
           <ItemArea>
             <LabelArea>{MESSAGES.MAIL_TEMPLATE}</LabelArea>
