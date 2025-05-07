@@ -28,5 +28,27 @@ export class ProductDatasource implements dsProductInterface {
       };
     }
   }
+
+  public async findAll(ctx: Context): PromiseResult<Error, Product[]> {
+    try {
+      const products = await Product.findAll({
+        raw: true,
+        order: [["id", "ASC"]],
+        transaction: ctx.tx || undefined,
+      });
+
+      return {
+        success: true,
+        data: products,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error
+            : new Error("Error in ProductDatasource findAll"),
+      };
+    }
   }
 }

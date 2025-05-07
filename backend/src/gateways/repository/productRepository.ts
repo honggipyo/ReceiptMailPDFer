@@ -19,4 +19,9 @@ export class ProductRepository implements ProductRepositoryInterface {
     const product = await this.productDatasource.findById(ctx, productId);
     return product;
   }
+
+  public async getAllProducts(ctx: Context): PromiseResult<Error, Product[]> {
+    const products = await this.productDatasource.findAll(ctx);
+    return products;
+  }
 }

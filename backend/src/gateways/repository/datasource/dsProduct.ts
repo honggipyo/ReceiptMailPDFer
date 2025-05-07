@@ -7,4 +7,6 @@ export interface dsProductInterface {
     ctx: Context,
     productId: number,
   ): PromiseResult<Error, Product | null>;
+
+  findAll(ctx: Context): PromiseResult<Error, Product[]>;
 }
