@@ -7,6 +7,8 @@ import { MAIL_TEMPLATES, MAIL_TEMPLATES_OPTIONS, MESSAGES } from '@/constants';
 import { Loading } from '@/components/Loading';
 import { getEmailExampleData } from '@/util';
 import { useApiRequest } from '@/hooks';
+import { GetServerSideProps } from 'next';
+import { Product } from '@/types';
 
 /**
  * スタイル付きコンポーネント定義
@@ -153,16 +155,18 @@ interface HomeProps {
  *
  * このコンポーネントは以下の機能を提供します：
  * 1. メールテンプレートの選択機能
- * 2. CSVファイルのアップロード機能（ドラッグ＆ドロップ対応）
- * 3. 領収書メール送信のための確認チェック
- * 4. サーバーへのCSVファイル送信機能
+ * 2. 商品リストの表示
+ * 3. CSVファイルのアップロード機能（ドラッグ＆ドロップ対応）
+ * 4. 領収書メール送信のための確認チェック
+ * 5. サーバーへのCSVファイル送信機能
  *
  * プロセスフロー:
  * 1. ユーザーがメールテンプレートを選択
- * 2. CSVファイルをアップロード（ドラッグ＆ドロップまたはファイル選択）
- * 3. 同意チェックボックスにチェック
- * 4. 送信ボタンをクリックしてバックエンドAPIにリクエスト送信
- * 5. 結果に応じたメッセージを表示
+ * 2. 商品リストから必要な情報を確認
+ * 3. CSVファイルをアップロード（ドラッグ＆ドロップまたはファイル選択）
+ * 4. 同意チェックボックスにチェック
+ * 5. 送信ボタンをクリックしてバックエンドAPIにリクエスト送信
+ * 6. 結果に応じたメッセージを表示
  */
 export default function Home({ products }: HomeProps) {
   // ステート管理の定義
@@ -368,10 +372,10 @@ export default function Home({ products }: HomeProps) {
         <ScrollableTableContainer>
           {/* メールテンプレート選択エリア */}
           <ItemArea>
-            <LabelArea>メールテンプレート</LabelArea>
+            <LabelArea>{MESSAGES.MAIL_TEMPLATE}</LabelArea>
             <SelectArea value={selectedTemplate} onChange={handleSelectChange}>
               <option value="" disabled>
-                テンプレートを選択
+                {MESSAGES.MAIL_TEMPLATE_SELECT}
               </option>
               {MAIL_TEMPLATES_OPTIONS.map(option => (
                 <option key={option.name} value={option.name}>
