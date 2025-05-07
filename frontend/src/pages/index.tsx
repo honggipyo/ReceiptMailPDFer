@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
-import { DragEvent, useState } from 'react';
+import { DragEvent, useState, useCallback } from 'react';
 import { CheckBox } from '@/components/CheckBox';
 import StyledTableComponent from '@/components/StyledTableComponent';
-import { MAIL_TEMPLATES, MAIL_TEMPLATES_OPTIONS } from '@/constants';
+import { MAIL_TEMPLATES, MAIL_TEMPLATES_OPTIONS, MESSAGES } from '@/constants';
 import { Loading } from '@/components/Loading';
 import { getEmailExampleData } from '@/util';
 
@@ -157,86 +157,111 @@ export default function Home() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [isAgreeReceiptMail, setIsAgreeReceiptMail] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  /**
+   * エラーメッセージ表示関数
+   * alert() の代わりにステート管理して表示
+   */
+  const showError = useCallback((message: string) => {
+    setError(message);
+    alert(message);
+  }, []);
 
   /**
    * メールテンプレート選択時の処理
    * テンプレートが変更されると、関連する状態をリセットします
    */
-  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleSelectChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
     setSelectedTemplate(value);
     setIsAgreeReceiptMail(false);
     setFileName(null);
     setCsvFile(null);
-  };
+    setError(null);
+  }, []);
 
   /**
    * ファイルがCSV形式かどうかを確認する関数
    */
-  const isCsvFile = (file: File): boolean => {
+  const isCsvFile = useCallback((file: File): boolean => {
     return file.type === 'text/csv' || file.name.endsWith('.csv');
-  };
+  }, []);
 
   /**
    * ファイル選択時の処理
    * 選択されたファイルの名前を表示し、状態を更新します
    */
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const file = e.target.files[0];
-      setFileName(file.name);
-      setCsvFile(file);
-    }
-  };
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setError(null);
+      if (e.target.files && e.target.files.length > 0) {
+        const file = e.target.files[0];
+        if (isCsvFile(file)) {
+          setFileName(file.name);
+          setCsvFile(file);
+        } else {
+          showError(MESSAGES.CSV_FORMAT_REQUIRED);
+          setFileName(null);
+          setCsvFile(null);
+        }
+      }
+    },
+    [isCsvFile, showError]
+  );
 
   /**
    * ドラッグ＆ドロップでファイルを受け取る処理
    * CSVファイルのみを受け付け、それ以外の形式はエラーメッセージを表示します
    */
-  const handleFileDrop = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const files = e.dataTransfer.files;
-    if (files && files.length > 0) {
-      const file = files[0];
-      if (isCsvFile(file)) {
-        setFileName(file.name);
-        setCsvFile(file);
-      } else {
-        alert('csv形式のファイルをアップロードしてください。');
+  const handleFileDrop = useCallback(
+    (e: DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      setError(null);
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        const file = files[0];
+        if (isCsvFile(file)) {
+          setFileName(file.name);
+          setCsvFile(file);
+        } else {
+          showError(MESSAGES.CSV_FORMAT_REQUIRED);
+        }
       }
-    }
-  };
+    },
+    [isCsvFile, showError]
+  );
 
   /**
    * ドラッグオーバー時のイベント処理
    * デフォルトの動作を防止します
    */
-  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+  const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-  };
+  }, []);
 
   /**
    * 領収書メール送信の同意チェックボックスの状態変更処理
    */
-  const handleCheckIsAgreeReceiptMail = (isChecked: boolean) => {
+  const handleCheckIsAgreeReceiptMail = useCallback((isChecked: boolean) => {
     setIsAgreeReceiptMail(isChecked);
-  };
+  }, []);
 
   /**
    * メール送信前のバリデーション処理
    * ファイルの選択状態と同意チェックを確認します
    */
-  const validateSendMail = () => {
+  const validateSendMail = useCallback(() => {
     if (!csvFile) {
-      alert('ファイルが選択されていません。');
+      showError(MESSAGES.FILE_NOT_SELECTED);
       return false;
     }
     if (!isAgreeReceiptMail) {
-      alert('領収書発行メール送信に同意してください。');
+      showError(MESSAGES.AGREE_REQUIRED);
       return false;
     }
     return true;
-  };
+  }, [csvFile, isAgreeReceiptMail, showError]);
 
   /**
    * CSVファイル送信処理
@@ -244,38 +269,52 @@ export default function Home() {
    * 成功時は成功メッセージを表示し、ページをリロードします
    * 失敗時はエラーメッセージを表示します
    */
-  const handleCsvSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleCsvSubmit = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
 
-    if (!validateSendMail()) return;
+      if (!validateSendMail()) return;
 
-    console.log('Upload file:', csvFile);
+      console.log('Upload file:', csvFile);
 
-    const formData = new FormData();
-    formData.append('file', csvFile || '');
+      // タイプガード
+      if (!csvFile) return;
 
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/sendEmailByCsv`, {
-        method: 'POST',
-        headers: {
-          'x-api-key': process.env.NEXT_PUBLIC_API_KEY,
-          authorization: process.env.NEXT_PUBLIC_API_KEY_V2,
-        } as HeadersInit,
-        body: formData,
-      });
-      if (!response.ok) {
-        throw new Error(response.statusText);
+      const formData = new FormData();
+      formData.append('file', csvFile);
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch(`/api/sendEmailByCsv`, {
+          method: 'POST',
+          headers: {
+            'x-api-key': process.env.NEXT_PUBLIC_API_KEY ?? '',
+            authorization: process.env.NEXT_PUBLIC_API_KEY_V2 ?? '',
+          } as HeadersInit,
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || response.statusText);
+        }
+
+        alert(MESSAGES.UPLOAD_SUCCESS);
+        router.reload();
+      } catch (error) {
+        console.error('Error during upload:', error);
+        showError(error instanceof Error ? error.message : MESSAGES.UPLOAD_FAILURE);
+      } finally {
+        setLoading(false);
       }
-      alert('領収書発行メール送信に成功しました！');
-      router.reload();
-    } catch (error) {
-      console.error('Error during upload:', error);
-      alert(error instanceof Error ? error.message : '領収書発行メール送信に失敗しました。');
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [csvFile, validateSendMail, router, showError]
+  );
+
+  // メールテンプレートに基づいたサンプルデータの取得
+  const emailExample = getEmailExampleData(selectedTemplate);
 
   return (
     <Container>
@@ -295,6 +334,7 @@ export default function Home() {
               ))}
             </SelectArea>
           </ItemArea>
+
           {/* 領収書テンプレート選択時のCSVアップロードエリア */}
           {selectedTemplate === MAIL_TEMPLATES.receipt.name && (
             <CsvArea>
@@ -302,7 +342,7 @@ export default function Home() {
                 {/* ファイルアップロード領域（ドラッグ＆ドロップ対応） */}
                 <FileInputContainer onDrop={handleFileDrop} onDragOver={handleDragOver}>
                   <FileInputLabel htmlFor="fileInput">
-                    {fileName ? fileName : 'CSVファイルを選択'}
+                    {fileName ? fileName : MESSAGES.SELECT_CSV_FILE}
                   </FileInputLabel>
                   <FileInput
                     name="file"
@@ -312,18 +352,18 @@ export default function Home() {
                     onChange={handleFileChange}
                   />
                 </FileInputContainer>
+
+                {/* エラーメッセージ表示 */}
+                {error && <div style={{ color: 'red', marginTop: '8px' }}>{error}</div>}
+
                 {/* 注意事項と同意チェックボックス */}
                 <CheckBoxGroup>
-                  <CheckBoxDescription>
-                    {`※ 送信ボタンを押すと、CSVファイルのユーザー全員に領収書発行メールが送信されます。`}
-                  </CheckBoxDescription>
-                  <CheckBoxDescription>
-                    {`必ずCSVファイルをご確認の上、送信してください。`}
-                  </CheckBoxDescription>
+                  <CheckBoxDescription>{MESSAGES.NOTICE_BEFORE_SEND}</CheckBoxDescription>
+                  <CheckBoxDescription>{MESSAGES.CHECK_CSV_FILE}</CheckBoxDescription>
                   <CheckBox
-                    label={'領収書発行メール送信に同意しますか？'}
+                    label={MESSAGES.CONSENT_QUESTION}
                     isLoading={isLoading}
-                    onChange={e => handleCheckIsAgreeReceiptMail(e)}
+                    onChange={handleCheckIsAgreeReceiptMail}
                   />
                 </CheckBoxGroup>
 
@@ -331,15 +371,15 @@ export default function Home() {
                 {isLoading ? (
                   <Loading />
                 ) : (
-                  <SubmitButton type="submit">領収書発行メールを一括で送信</SubmitButton>
+                  <SubmitButton type="submit" disabled={!csvFile || !isAgreeReceiptMail}>
+                    {MESSAGES.SEND_RECEIPT_MAIL}
+                  </SubmitButton>
                 )}
               </Form>
+
               {/* CSVファイルのフォーマット説明とサンプル表示 */}
-              <CsvFormatText>以下のフォーマットのcsvをアップロードしてください</CsvFormatText>
-              <StyledTableComponent
-                columns={getEmailExampleData(selectedTemplate).columns}
-                datas={getEmailExampleData(selectedTemplate).data}
-              />
+              <CsvFormatText>{MESSAGES.CSV_FORMAT_GUIDE}</CsvFormatText>
+              <StyledTableComponent columns={emailExample.columns} datas={emailExample.data} />
             </CsvArea>
           )}
         </ScrollableTableContainer>
