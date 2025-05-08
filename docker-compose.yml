@@ -1,6 +1,11 @@
 version: '3.8'
+networks:
+  receipt-network:
+    driver: bridge
+
 services:
   db:
+    container_name: receipt-mysql
     image: mysql:8.0
     restart: always
     environment:
@@ -9,11 +14,15 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: password
     ports:
-      - "3306:3306"
+      - "13306:3306"
     volumes:
       - db-data:/var/lib/mysql
+    networks:
+      - receipt-network
+    command: --default-authentication-plugin=mysql_native_password
 
   backend:
+    container_name: receipt-backend
     build: ./backend
     ports:
       - "8080:8080"
@@ -21,17 +30,29 @@ services:
       - ./backend:/app
     depends_on:
       - db
-    env_file:
-      - ./backend/.env
-    command: ["./wait-for-it.sh", "db", "3306", "--", "npm", "run", "dev"]
-
+    environment:
+      - PORT=8080
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=receiptdb
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - NODE_ENV=development
+    command: sh -c "sleep 30 && npm run dev"
+    networks:
+      - receipt-network
 
   frontend:
+    container_name: receipt-frontend
     build: ./frontend
     ports:
       - "3000:3000"
     depends_on:
       - backend
+    environment:
+      - NEXT_PUBLIC_BACKEND_ENDPOINT=http://backend:8080
+    networks:
+      - receipt-network
 
 volumes:
   db-data:
